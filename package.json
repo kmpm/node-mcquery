@@ -1,0 +1,10 @@
+{
+  "name": "mcquery",
+  "description": "minecraft query protocol wrapper for node",
+  "keywords": ["mcquery", "protocol", "query", "minecraft"],
+  "version": "0.0.1", 
+  "main":"mcquery.js", 
+  "engines": {
+      "node": "~v0.6.0"
+  }
+}
