@@ -53,16 +53,16 @@ vows.describe('GS4 Query').addBatch({
       },
       'returns a stat object':function(err, stat){
         assert.isObject(stat);
-        assert.include(stat, 'motd');
-        assert.include(stat, 'gameType');
-        assert.include(stat, 'worldName');
-        assert.include(stat, 'playersOnline');
-        assert.isNumber(stat.playersOnline);
-        assert.include(stat, 'playersMax');
-        assert.isNumber(stat.playersMax);
-        assert.include(stat, 'port');
-        assert.isNumber(stat.port);
-        assert.include(stat, 'host');
+        assert.include(stat, 'hostname');
+        assert.include(stat, 'gametype');
+        assert.include(stat, 'map');
+        assert.include(stat, 'numplayers');
+        assert.isNumber(stat.numplayers);
+        assert.include(stat, 'maxplayers');
+        assert.isNumber(stat.maxplayers);
+        assert.include(stat, 'hostport');
+        assert.isNumber(stat.hostport);
+        assert.include(stat, 'hostip');
         //console.log(stat);
       }
     },//topic basic_stat

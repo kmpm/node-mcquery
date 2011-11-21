@@ -17,7 +17,6 @@ function makePacket(type,session, payloadBuffer){
   var pLength = typeof(payloadBuffer)==='undefined'? 0 : payloadBuffer.length;
   var sLength = typeof(session.sessionToken)==='undefined'? 0: 4;
   var b = new Buffer(7 + sLength+pLength);
-  //console.log("pLength:", pLength, session);
   b.writeUInt8(0xFE, 0);
   b.writeUInt8(0xFD, 1);
   b.writeUInt8(type, 2);
@@ -45,22 +44,22 @@ function readPacket(data){
     var r = readString(data);
     if(r.text !== 'splitnum'){
       //basic stat
-      res.motd = r.text;
+      res.hostname = r.text;
       r = readString(data, r.offset);
-      res.gameType = r.text;
+      res.gametype = r.text;
       
       r = readString(data, r.offset);
-      res.worldName = r.text;
+      res.map = r.text;
       
       r = readString(data, r.offset);
-      res.playersOnline = parseInt(r.text);
+      res.numplayers = parseInt(r.text);
       
       r = readString(data, r.offset);
-      res.playersMax = parseInt(r.text);
+      res.maxplayers = parseInt(r.text);
 
-      res.port = data.readUInt16LE(r.offset);
+      res.hostport = data.readUInt16LE(r.offset);
       r = readString(data, r.offset +2);
-      res.host = r.text;
+      res.hostip = r.text;
     }
     else {
       var offset=r.offset;
@@ -73,7 +72,6 @@ function readPacket(data){
         key = r.text;
         r = readString(data, offset); offset=r.offset;
         value = r.text;
-        console.log(key, 'string', value);
         res[key]=value;
       }
       res.extra2 = data.readUInt16LE(offset);offset+=2;
@@ -85,7 +83,6 @@ function readPacket(data){
       offset+=1;
       r=readString(data, offset); offset=r.offset;
       while(r.text.length>=1){
-        console.log(r.text);
         players.push(r.text);
         r=readString(data, offset); offset=r.offset;
       }
@@ -113,7 +110,6 @@ var Query = module.exports =  function Query(){
   this.requestQueue={};
 
   socket.on('message', function(msg, rinfo){
-    //console.log("message:", msg);
     var res = readPacket(msg);
     res.rinfo = rinfo;
     deQueue(res);
@@ -133,7 +129,7 @@ var Query = module.exports =  function Query(){
     }
     
     function doHandshake(){
-      console.log("doHandshake");
+      
       var token = generateToken();
       session.idToken=token;
       m.send(session, CHALLENGE_TYPE, function(err, res){
@@ -202,7 +198,6 @@ var Query = module.exports =  function Query(){
       payloadBuffer=undefined;
     }
     var b = makePacket(type, session, payloadBuffer);
-    //console.log('packet:', b);
     socket.send(b, 0, b.length, session.port, session.host, function(err, sent){
       if(err){
         callback(err);
