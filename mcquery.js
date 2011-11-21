@@ -64,7 +64,7 @@ function readPacket(data){
     else {
       var offset=r.offset;
       res.splitnum = r.text;
-      res.extra1 = data.readUInt16LE(offset);offset+=2;
+      res.key_val_start = data.readUInt16LE(offset);offset+=2;
       var key;
       var value;
       while(data.readUInt16LE(offset) !== 256){
@@ -74,7 +74,7 @@ function readPacket(data){
         value = r.text;
         res[key]=value;
       }
-      res.extra2 = data.readUInt16LE(offset);offset+=2;
+      res.key_val_end = data.readUInt16LE(offset);offset+=2;
       
       r = readString(data, offset); offset=r.offset;
       key = r.text;
@@ -189,7 +189,15 @@ var Query = module.exports =  function Query(){
   this.full_stat = function(session, callback){
     var b = new Buffer(4);
     b.fill(0);
-    this.send(session, STAT_TYPE, b, callback );
+    this.send(session, STAT_TYPE, b, function(err, res){
+      if(err)callback(err);
+      else{
+        delete res.type;
+        delete res.idToken;
+        delete res.rinfo;
+        callback(null, res);
+      }
+    });
   }
 
   this.send = function(session, type, payloadBuffer, callback){
@@ -206,6 +214,10 @@ var Query = module.exports =  function Query(){
       }
     });
   };
+
+  this.close = function(){
+    socket.close();
+  }
   
 
 

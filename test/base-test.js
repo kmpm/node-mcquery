@@ -79,18 +79,17 @@ vows.describe('GS4 Query').addBatch({
       },
       'returns a full stat object':function(err, stat){
         assert.isObject(stat);
-        var props = ['splitnum', 'extra1'
+        var props = ['splitnum', 'key_val_start'
           , 'hostname', 'gametype'
           , 'game_id', 'version'
           , 'plugins', 'map'
           , 'numplayers', 'maxplayers'
           , 'hostport', 'hostip'
-          , 'extra2', 'player_'];
+          , 'key_val_end', 'player_'];
         for(var i=0; i<props.length;i++){
           assert.include(stat, props[i]);
         }
         assert.isArray(stat.player_);
-        
       }
     }//topic full_stat
   }//topic startSession
