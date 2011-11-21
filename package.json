@@ -5,6 +5,6 @@
   "version": "0.0.1", 
   "main":"mcquery.js", 
   "engines": {
-      "node": "~v0.6.0"
+      "node": ">=v0.6.2"
   }
 }
