@@ -217,6 +217,7 @@ var Query = module.exports =  function Query(){
 
   this.close = function(){
     socket.close();
+    m.online=false;
   }
   
 
