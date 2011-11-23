@@ -1,3 +1,7 @@
+/*!
+ *  Copyright © 2011 Peter Magnusson.
+ *  All rights reserved.
+ */
 var vows = require('vows'),
     assert = require('assert');
 

@@ -1,3 +1,7 @@
+/*!
+ *  Copyright © 2011 Peter Magnusson.
+ *  All rights reserved.
+ */
 var dgram = require('dgram');
 
 var CHALLENGE_TYPE=0x09;

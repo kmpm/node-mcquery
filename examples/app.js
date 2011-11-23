@@ -1,3 +1,7 @@
+/*!
+ *  Copyright © 2011 Peter Magnusson.
+ *  All rights reserved.
+ */
 var Query = require('../mcquery');
 
 var query = new Query();

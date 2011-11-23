@@ -1,14 +1,3 @@
-# Node-MCQuery
-A library for accessing a Minecraft server using the Query protocol
-
-
-## References ##
-* http://wiki.vg/Query
-
-
-
-## License 
-
 (The MIT License)
 
 Copyright (c) 2011 Peter Magnusson &lt;kmpm@birchroad.net&gt;
