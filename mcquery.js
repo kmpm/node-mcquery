@@ -44,9 +44,7 @@ var Query = module.exports =  function Query(){
     }
     
     function doHandshake(){
-      
-      var token = generateToken();
-      session.sessionToken=token;
+      session.sessionToken = generateToken();
       m.send(session, CHALLENGE_TYPE, function(err, res){
         if(err){callback(err); return;}
         session.challengeToken = res.challengeToken;
