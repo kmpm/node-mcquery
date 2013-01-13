@@ -215,7 +215,7 @@ function readPacket(data){
     var r = readString(data);
     if(r.text !== 'splitnum'){
       //basic stat
-      res.hostname = r.text;
+      res.MOTD = r.text;
       r = readString(data, r.offset);
       res.gametype = r.text;
       
