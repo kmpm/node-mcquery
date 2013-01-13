@@ -46,10 +46,10 @@ var Query = module.exports =  function Query(){
     function doHandshake(){
       
       var token = generateToken();
-      session.idToken=token;
+      session.sessionToken=token;
       m.send(session, CHALLENGE_TYPE, function(err, res){
         if(err){callback(err); return;}
-        session.sessionToken = res.sessionToken;
+        session.challengeToken = res.challengeToken;
         callback(null, session);
       }); 
     }
@@ -82,7 +82,7 @@ var Query = module.exports =  function Query(){
       if(err)callback(err);
       else{
         delete res.type;
-        delete res.idToken;
+        delete res.sessionToken;
         delete res.rinfo;
         callback(null, res);
       }
@@ -107,17 +107,17 @@ var Query = module.exports =  function Query(){
   */
   function addQueue(session, type, callback){
     var q;
-    if(typeof(m.requestQueue[session.idToken])==='undefined'){
+    if(typeof(m.requestQueue[session.sessionToken])==='undefined'){
       q = {};
-      m.requestQueue[session.idToken]=q;
+      m.requestQueue[session.sessionToken]=q;
     }
     else{
-      q = m.requestQueue[session.idToken];
+      q = m.requestQueue[session.sessionToken];
     }
     var t = setTimeout(function(){
       delete q[type];
       if(q.length===0){
-        delete m.requestQueue[session.idToken];
+        delete m.requestQueue[session.sessionToken];
       }
       callback({error:'timeout'});
     }, 1000);
@@ -130,7 +130,7 @@ var Query = module.exports =  function Query(){
   * Check for requests matching the response given
   */
   function deQueue(res){
-    var key = res.idToken;
+    var key = res.sessionToken;
     if(typeof(m.requestQueue[key])==='undefined'){
       //no such session running... just ignore
       return;
@@ -169,7 +169,7 @@ var Query = module.exports =  function Query(){
 };// end Query
 
 /*
-* Generate a idToken
+* Generate a sessionToken
 */
 function generateToken(){
   counter +=1;
@@ -185,14 +185,14 @@ function generateToken(){
 */
 function makePacket(type,session, payloadBuffer){
   var pLength = typeof(payloadBuffer)==='undefined'? 0 : payloadBuffer.length;
-  var sLength = typeof(session.sessionToken)==='undefined'? 0: 4;
+  var sLength = typeof(session.challengeToken)==='undefined'? 0: 4;
   var b = new Buffer(7 + sLength+pLength);
   b.writeUInt8(0xFE, 0);
   b.writeUInt8(0xFD, 1);
   b.writeUInt8(type, 2);
-  b.writeUInt32BE(session.idToken, 3);
+  b.writeUInt32BE(session.sessionToken, 3);
   if(sLength>0){
-    b.writeUInt32BE(session.sessionToken, 7);
+    b.writeUInt32BE(session.challengeToken, 7);
   }
   if(pLength>0){
     payloadBuffer.copy(b, 7+sLength +1);
@@ -207,11 +207,11 @@ function makePacket(type,session, payloadBuffer){
 function readPacket(data){
   var res = {
     type:data.readUInt8(0),
-    idToken:data.readUInt32BE(1),
+    sessionToken:data.readUInt32BE(1),
   };
   data = data.slice(5);
   if(res.type===CHALLENGE_TYPE){
-    res.sessionToken=parseInt(data.toString());
+    res.challengeToken=parseInt(data.toString());
   }
   else if(res.type===STAT_TYPE){
     var r = readString(data);
