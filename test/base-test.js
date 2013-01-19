@@ -1,16 +1,17 @@
 /*!
- *  Copyright © 2011 Peter Magnusson.
+ *  Copyright © 2011-2012 Peter Magnusson.
  *  All rights reserved.
  */
 var vows = require('vows'),
     assert = require('assert');
 
-var Query = require('../mcquery');
+var Query = require('../mcquery')
+  , config = require(__dirname + '/test-config.json');
 
 var query = new Query();
 
-var TEST_HOST='localhost';
-var TEST_PORT=25565;
+var TEST_HOST=config.server;
+var TEST_PORT=config.port;
 
 vows.describe('GS4 Query').addBatch({
   'startSession':{
@@ -27,11 +28,11 @@ vows.describe('GS4 Query').addBatch({
       topic:function(session){
         return session;
       },
-      'has sessionToken':function(session){
-        assert.include(session, 'sessionToken');
-        assert.isNumber(session.sessionToken);
+      'has challengeToken':function(session){
+        assert.include(session, 'challengeToken');
+        assert.isNumber(session.challengeToken);
         //have never seen a lower value tan 20000
-        assert.isTrue(session.sessionToken>20000);
+        assert.isTrue(session.challengeToken>20000);
       },
       'has host':function(session){
         assert.include(session, 'host');
@@ -43,9 +44,9 @@ vows.describe('GS4 Query').addBatch({
         assert.isNumber(session.port);
         assert.equal(session.port, TEST_PORT);
       },
-      'has idToken':function(session){
-        assert.include(session, 'idToken');
-        assert.isNumber(session.idToken);
+      'has sessionToken':function(session){
+        assert.include(session, 'sessionToken');
+        assert.isNumber(session.sessionToken);
       }
     },//topic session object
     'basic_stat':{
@@ -57,7 +58,7 @@ vows.describe('GS4 Query').addBatch({
       },
       'returns a stat object':function(err, stat){
         assert.isObject(stat);
-        assert.include(stat, 'hostname');
+        assert.include(stat, 'MOTD');
         assert.include(stat, 'gametype');
         assert.include(stat, 'map');
         assert.include(stat, 'numplayers');

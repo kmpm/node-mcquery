@@ -13,5 +13,8 @@
   "repository":{ 
     "type" : "git",
     "url" : "http://github.com/kmpm/node-mcquery.git"
+  },
+  "devDependencies": {
+    "vows": "*"
   }
 }
