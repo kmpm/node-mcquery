@@ -3,20 +3,28 @@
  *  All rights reserved.
  */
 var vows = require('vows'),
-    assert = require('assert');
+    assert = require('assert'),
+    fs = require('fs'),
+    path = require('path');
 
-var Query = require('../mcquery')
-  , config = require(__dirname + '/test-config.json');
+var f = path.resolve('./config.json');
 
-var query = new Query();
+if(fs.existsSync(f)){
+  var config = require(f);
+}
+else {
+  config={host:'localhost', port:25565};
+}
+var Query = require('../mcquery');
 
-var TEST_HOST=config.server;
+var TEST_HOST=config.host;
 var TEST_PORT=config.port;
+var global_query = new Query(TEST_HOST, TEST_PORT);
 
 vows.describe('GS4 Query').addBatch({
-  'startSession':{
+  'connect':{
     topic:function(){
-      query.startSession(TEST_HOST, TEST_PORT, this.callback);
+      global_query.connect(this.callback);
     },
     'does not return error':function(err, session){
       assert.isNull(err);
@@ -31,10 +39,10 @@ vows.describe('GS4 Query').addBatch({
       'has challengeToken':function(session){
         assert.include(session, 'challengeToken');
         assert.isNumber(session.challengeToken);
-        //have never seen a lower value tan 20000
+        //have never seen a lower value then 20000
         assert.isTrue(session.challengeToken>20000);
       },
-      'has host':function(session){
+      /*'has host':function(session){
         assert.include(session, 'host');
         assert.isString(session.host);
         assert.equal(session.host, TEST_HOST);
@@ -47,11 +55,12 @@ vows.describe('GS4 Query').addBatch({
       'has sessionToken':function(session){
         assert.include(session, 'sessionToken');
         assert.isNumber(session.sessionToken);
-      }
+      }*/
     },//topic session object
     'basic_stat':{
       topic:function(session){
-        query.basic_stat(session, this.callback);
+        //var query = new Query(TEST_HOST, TEST_PORT);
+        global_query.basic_stat(this.callback);
       },
       'does not return error':function(err, stat){
         assert.isNull(err);
@@ -73,11 +82,12 @@ vows.describe('GS4 Query').addBatch({
     },//topic basic_stat
     'full_stat':{
       topic:function(){
+        //var query=new Query(TEST_HOST, TEST_PORT);
         var callback= this.callback;
         //start a new session, we are async!
-        query.startSession(TEST_HOST, TEST_PORT, function(err, session){
-          query.full_stat(session, callback);
-        });
+        //query.connect(function(err, session){
+        global_query.full_stat(callback);
+        //});
       },
       'does not return error':function(err, stat){
         assert.isNull(err);

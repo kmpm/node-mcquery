@@ -1,54 +1,79 @@
 /*!
- *  Copyright © 2011 Peter Magnusson.
+ *  Copyright © 2011-2013 Peter Magnusson.
  *  All rights reserved.
  */
-var dgram = require('dgram');
+var dgram = require('dgram')
+  , EventEmitter = require('events').EventEmitter
+  , util = require('util')
+  , log = require('./lib/log');
 
+var REQUEST_TIMEOUT=3000;
+
+//internal
 var CHALLENGE_TYPE=0x09;
 var STAT_TYPE=0x00;
-
 var counter =0;
 
-var Query = module.exports =  function Query(){
+/** Create a new instance of the client
+  * @param {String} hostname or ip
+  * @param {Number} port
+  *
+  * @api public
+  */
+var Query = module.exports =  function Query(host, port){
+  var host = host;
+  var port = port || 25565; 
   var socket = dgram.createSocket('udp4');
-  var m = this;
-  m.online=false;
+  var requestQueue=[];
+  var self = this;
+  self.challengeToken=null;
+  self.online=false;
+   self.currentRequest=null;
 
   this.requestQueue={};
 
   socket.on('message', function(msg, rinfo){
+    log.debug('got a response message');
     var res = readPacket(msg);
     res.rinfo = rinfo;
     deQueue(res);
   });
+  socket.on('error', function(err){
+    log.error('socket error', err);
+  });
+  socket.on('close', function(){
+    log.debug('socket closed');
+  });
+  socket.on('listening', function(){
+    log.debug('socket is listening');
+  });
 
   /**
   * Start a new session with given host at port
-  * @param {String} hostname or ip
-  * @param {Number} port
   * @param {function} function(err, session)
   *
   * @api public
   */
-  this.startSession = function(host, port, callback){
-    var session = {host:host, port:port};
-    if (! m.online){
+  this.connect = function(callback){
+    if (! self.online){
       socket.on('listening', function(){
         doHandshake();
-        m.online=true; 
+        self.online=true; 
       });
       socket.bind();
     }
-    else{
+    else {
       doHandshake();
     }
     
     function doHandshake(){
-      session.sessionToken = generateToken();
-      m.send(session, CHALLENGE_TYPE, function(err, res){
+      log.debug("doing handshake");
+      self.idToken = generateToken();
+      self.send(CHALLENGE_TYPE, function(err, res){
         if(err){callback(err); return;}
-        session.challengeToken = res.challengeToken;
-        callback(null, session);
+        log.debug("challengeToken=", res.challengeToken);
+        self.challengeToken = res.challengeToken;
+        callback(null, self);
       }); 
     }
   };//end startSession
@@ -61,8 +86,8 @@ var Query = module.exports =  function Query(){
   *
   * @api public
   */
-  this.basic_stat = function(session, callback){
-    this.send(session, STAT_TYPE, callback);
+  this.basic_stat = function(callback){
+    self.send(STAT_TYPE, callback);
   };//end basic_stat
   
 
@@ -73,14 +98,17 @@ var Query = module.exports =  function Query(){
   *
   * @api public
   */
-  this.full_stat = function(session, callback){
+  this.full_stat = function(callback){
+    if(typeof(callback) !== 'function'){
+      throw new TypeError('callback is not a function');
+    }
     var b = new Buffer(4);
     b.fill(0);
-    this.send(session, STAT_TYPE, b, function(err, res){
+    self.send(STAT_TYPE, b, function(err, res){
       if(err)callback(err);
       else{
         delete res.type;
-        delete res.sessionToken;
+        delete res.idToken;
         delete res.rinfo;
         callback(null, res);
       }
@@ -96,31 +124,44 @@ var Query = module.exports =  function Query(){
   */
   this.close = function(){
     socket.close();
-    m.online=false;
-    m.requestQueue={};
+    online=false;
+    requestQueue={};
   };//end close
+
+
+  function processQueue(){
+    if(self.currentRequest === null && requestQueue.length >0){
+      log.debug("processing queue");
+      self.currentRequest = requestQueue.shift();
+      transmit(self.currentRequest.packet, self.currentRequest.callback);
+    }else{
+      log.debug("nothing to do");
+    }
+    if(self.currentRequest && requestQueue.length >0){
+      setTimeout(processQueue, 300);
+    }
+  }
 
   /**
   * Add a request to the queue
   */
-  function addQueue(session, type, callback){
-    var q;
-    if(typeof(m.requestQueue[session.sessionToken])==='undefined'){
-      q = {};
-      m.requestQueue[session.sessionToken]=q;
+  function addQueue(type, packet, callback){
+    if(typeof(callback) !== 'function'){
+      throw new Error('no callback');  
     }
-    else{
-      q = m.requestQueue[session.sessionToken];
-    }
+    log.debug('adding', type, 'to queue');
+    var q={type:type, callback:callback, packet:packet};
+
     var t = setTimeout(function(){
       delete q[type];
       if(q.length===0){
-        delete m.requestQueue[session.sessionToken];
+        delete requestQueue[idToken];
       }
       callback({error:'timeout'});
-    }, 1000);
-    //TODO:err and delete any outstanding ones...
-    q[type]={callback:callback, timeout:t};
+    }, REQUEST_TIMEOUT);
+    q.timeout = t;
+    requestQueue.push(q);
+    processQueue();
   }
 
 
@@ -128,49 +169,68 @@ var Query = module.exports =  function Query(){
   * Check for requests matching the response given
   */
   function deQueue(res){
-    var key = res.sessionToken;
-    if(typeof(m.requestQueue[key])==='undefined'){
+    var key = res.idToken;
+    if(self.currentRequest === null || self.idToken !== res.idToken){
       //no such session running... just ignore
+      log.warn('no outstanding request', res);
       return;
     };
-    var qt = m.requestQueue[key][res.type];
-    if(typeof(qt)==='undefined'){
+
+    if(self.currentRequest.type !== res.type){
       //no such type in queue... just ignore
+      log.warn('response of wrong type', self.currentRequest, res);
       return;
     }
-    clearTimeout(qt.timeout);
-    var fn = qt.callback;
-    delete m.requestQueue[key][res.type];
-    if(m.requestQueue[key].length===0){
-      delete m.requestQueue[key];
+    clearTimeout(self.currentRequest.timeout);
+    var fn = self.currentRequest.callback;
+    self.currentRequest=null;
+    if(typeof(fn) === 'function'){
+       fn(null, res);
     }
-    fn(null, res);
+    else {
+      log.warn('no callback function', qt);
+    }
+    processQueue();
   }
 
-  /*
-  * Send a request and put it on the queue
-  */
-  this.send = function(session, type, payloadBuffer, callback){
-    if(arguments.length===3){
-      callback = arguments[2];
-      payloadBuffer=undefined;
-    }
-    var b = makePacket(type, session, payloadBuffer);
-    socket.send(b, 0, b.length, session.port, session.host, function(err, sent){
+  function transmit(packet, callback){
+    if(typeof(packet) !== 'object') throw new TypeError("packet was wrong type");
+    log.debug("transmitting packet", packet);
+    socket.send(packet, 0, packet.length, port, host, function(err, sent){
       if(err){
+        log.warn("there was an error sending", warn);
         callback(err);
-      }else{
-        addQueue(session, type, callback);
       }
     });
+  }
+  
+  /**
+  * Send a request and put it on the queue
+  */
+  this.send = function(type, payloadBuffer, callback){
+    if(arguments.length === 2){
+      callback = arguments[1];
+      payloadBuffer = undefined;
+    }
+
+    if(!(type === CHALLENGE_TYPE || type === STAT_TYPE)){
+      throw new TypeError('type did not have a correct value ' +  type);
+    }
+    if(typeof(callback) !== 'function'){
+      throw new TypeError('callback was not a function');
+    }
+    var b = makePacket(type, self.challengeToken, self.idToken, payloadBuffer);
+    addQueue(type, b, callback);
+
   };
 };// end Query
 
 /*
-* Generate a sessionToken
+* Generate a idToken
 */
 function generateToken(){
   counter +=1;
+  if(counter>50000) counter = 0; //just not let it get to big
   return 10000 + counter;
 }
 
@@ -181,16 +241,16 @@ function generateToken(){
 * @param {Object} session information
 * @param {Buffer} optional payload
 */
-function makePacket(type,session, payloadBuffer){
+function makePacket(type, challengeToken, idToken, payloadBuffer){
   var pLength = typeof(payloadBuffer)==='undefined'? 0 : payloadBuffer.length;
-  var sLength = typeof(session.challengeToken)==='undefined'? 0: 4;
+  var sLength = typeof(challengeToken) !== 'number' ? 0: 4;
   var b = new Buffer(7 + sLength+pLength);
   b.writeUInt8(0xFE, 0);
   b.writeUInt8(0xFD, 1);
   b.writeUInt8(type, 2);
-  b.writeUInt32BE(session.sessionToken, 3);
+  b.writeUInt32BE(idToken, 3);
   if(sLength>0){
-    b.writeUInt32BE(session.challengeToken, 7);
+    b.writeUInt32BE(challengeToken, 7);
   }
   if(pLength>0){
     payloadBuffer.copy(b, 7+sLength +1);
@@ -203,9 +263,10 @@ function makePacket(type,session, payloadBuffer){
 * Parse a response buffer and return an object
 */
 function readPacket(data){
+  log.debug('parsing packet');
   var res = {
     type:data.readUInt8(0),
-    sessionToken:data.readUInt32BE(1),
+    idToken:data.readUInt32BE(1),
   };
   data = data.slice(5);
   if(res.type===CHALLENGE_TYPE){
