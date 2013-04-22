@@ -198,7 +198,7 @@ var Query = module.exports =  function Query(host, port){
     log.debug("transmitting packet", packet);
     socket.send(packet, 0, packet.length, port, host, function(err, sent){
       if(err){
-        log.warn("there was an error sending", warn);
+        log.warn("there was an error sending", packet);
         callback(err);
       }
     });
