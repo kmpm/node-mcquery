@@ -230,8 +230,10 @@ var Query = module.exports =  function Query(host, port){
 */
 function generateToken(){
   counter +=1;
-  if(counter>50000) counter = 0; //just not let it get to big
-  return 10000 + counter;
+  //just not let it get to big. 32 bit int is max.
+  if(counter>999999) counter = 0; 
+  //the protocol only uses the first 4 bits in every byte so mask.
+  return (10000 + counter)  & 0x0F0F0F0F;
 }
 
 
@@ -245,15 +247,21 @@ function makePacket(type, challengeToken, idToken, payloadBuffer){
   var pLength = typeof(payloadBuffer)==='undefined'? 0 : payloadBuffer.length;
   var sLength = typeof(challengeToken) !== 'number' ? 0: 4;
   var b = new Buffer(7 + sLength+pLength);
-  b.writeUInt8(0xFE, 0);
-  b.writeUInt8(0xFD, 1);
-  b.writeUInt8(type, 2);
-  b.writeUInt32BE(idToken, 3);
-  if(sLength>0){
-    b.writeUInt32BE(challengeToken, 7);
+  try {
+    b.writeUInt8(0xFE, 0);
+    b.writeUInt8(0xFD, 1);
+    b.writeUInt8(type, 2);
+    b.writeUInt32BE(idToken, 3);
+    if(sLength>0){
+      b.writeUInt32BE(challengeToken, 7);
+    }
+    if(pLength>0){
+      payloadBuffer.copy(b, 7+sLength +1);
+    }
   }
-  if(pLength>0){
-    payloadBuffer.copy(b, 7+sLength +1);
+  catch(err){
+    log.error("type=%s, challengeToken=%s, idToken=%s", type, challengeToken, idToken);
+    throw err;
   }
   return b;
 }
@@ -268,12 +276,15 @@ function readPacket(data){
     type:data.readUInt8(0),
     idToken:data.readUInt32BE(1),
   };
+  log.debug("response=%j", res);
+
   data = data.slice(5);
   if(res.type===CHALLENGE_TYPE){
     res.challengeToken=parseInt(data.toString());
   }
   else if(res.type===STAT_TYPE){
     var r = readString(data);
+    log.debug("data=%j", r);
     if(r.text !== 'splitnum'){
       //basic stat
       res.MOTD = r.text;
@@ -296,6 +307,7 @@ function readPacket(data){
     else {
       var offset=r.offset;
       res.splitnum = r.text;
+      //add key_val_start to response. It's the start byte of the response
       res.key_val_start = data.readUInt16LE(offset);offset+=2;
       var key;
       var value;
@@ -306,6 +318,8 @@ function readPacket(data){
         value = r.text;
         res[key]=value;
       }
+
+      //add key_val_ed to response. It's the end byte of the response
       res.key_val_end = data.readUInt16LE(offset);offset+=2;
       
       r = readString(data, offset); offset=r.offset;
