@@ -11,7 +11,7 @@ A library for accessing a Minecraft server using the Query protocol
 
 (The MIT License)
 
-Copyright (c) 2011 Peter Magnusson &lt;kmpm@birchroad.net&gt;
+Copyright (c) 2011-2013 Peter Magnusson &lt;peter@birchroad.net&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
