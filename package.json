@@ -15,8 +15,8 @@
     "url" : "http://github.com/kmpm/node-mcquery.git"
   },
   "devDependencies": {
-    "vows": "*",
     "mocha": "*",
-    "async": "*"
+    "should": "*",
+    "nimble": "*"
   }
 }
