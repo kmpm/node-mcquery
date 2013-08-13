@@ -24,8 +24,7 @@ var global_session;
 describe('mcquery', function() {
     
     after(function(done){
-        //global_query.close();    
-        console.log("closing");
+        global_query.close();    
         done();
     });
 
@@ -51,6 +50,16 @@ describe('mcquery', function() {
       global_session.challengeToken.should.be.within(1, 0XFFFFFFFF);
       //test masking
       global_session.idToken.should.equal(global_session.idToken & 0x0F0F0F0F);
+    });
+
+    it('should be able to do an .doHandshake', function(done){
+      var oldChallenge = global_session.challengeToken;
+      global_query.doHandshake(function(err, session){
+        should.not.exist(err);
+        session.challengeToken.should.not.be.equal(oldChallenge);
+        done();
+      });
+
     });
 
     describe('.basic_stat(err, result)', function(){
@@ -88,11 +97,17 @@ describe('mcquery', function() {
     describe('.full_stat(err, result)', function(){
       var err, result;
       before(function(done){
-        global_query.full_stat(function(er, stat){
-          err = er;
-          result = stat;
-          done();
-        })
+        global_query.doHandshake(function(er, session){
+          should.not.exist(er);
+         
+          global_query.full_stat(function(er, stat){
+            err = er;
+            result = stat;
+            done();
+          });
+        });
+
+        
       });
 
       it('err should be null', function(){

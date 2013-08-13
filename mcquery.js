@@ -57,27 +57,34 @@ var Query = module.exports =  function Query(host, port){
   this.connect = function(callback){
     if (! self.online){
       socket.on('listening', function(){
-        doHandshake();
-        self.online=true; 
+        process.nextTick(function(){
+          self.doHandshake(callback);
+          self.online=true; 
+        });
+        
       });
       socket.bind();
     }
     else {
-      doHandshake();
+      self.doHandshake(callback);
     }
     
-    function doHandshake(){
-      log.debug("doing handshake");
-      self.idToken = generateToken();
-      self.send(CHALLENGE_TYPE, function(err, res){
-        if(err){callback(err); return;}
-        log.debug("challengeToken=", res.challengeToken);
-        self.challengeToken = res.challengeToken;
-        callback(null, self);
-      }); 
-    }
+    
   };//end startSession
 
+
+
+  this.doHandshake = function (callback){
+    callback = callback || function(){};
+    log.debug("doing handshake");
+    self.idToken = generateToken();
+    self.send(CHALLENGE_TYPE, function(err, res){
+      if(err){callback(err); return;}
+      log.debug("challengeToken=", res.challengeToken);
+      self.challengeToken = res.challengeToken;
+      callback(null, self);
+    }); 
+  }
 
   /**
   * Request basic stat information using session
