@@ -4,7 +4,7 @@
   "keywords": ["mcquery", "protocol", "query", "minecraft"],
   "homepage": "https://github.com/kmpm/node-mcquery",
   "author": "Peter Magnusson kmpm@birchroad.net",
-  "version": "0.1.0", 
+  "version": "0.1.1", 
   "main":"mcquery.js", 
   "engines": {
       "node": ">=v0.6.2"
@@ -15,6 +15,8 @@
     "url" : "http://github.com/kmpm/node-mcquery.git"
   },
   "devDependencies": {
-    "vows": "*"
+    "vows": "*",
+    "mocha": "*",
+    "async": "*"
   }
 }
