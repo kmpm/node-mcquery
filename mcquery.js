@@ -3,11 +3,10 @@
  *  All rights reserved.
  */
 var dgram = require('dgram')
-  , EventEmitter = require('events').EventEmitter
-  , util = require('util')
   , log = require('./lib/log');
 
 var REQUEST_TIMEOUT=3000;
+var QUEUE_DELAY=100;
 
 //internal
 var CHALLENGE_TYPE=0x09;
@@ -21,16 +20,15 @@ var counter =0;
   * @api public
   */
 var Query = module.exports =  function Query(host, port){
-  var host = host;
-  var port = port || 25565; 
+  host = host || '127.0.0.1';
+  port = port || (process.env.PORT || 25565); 
   var socket = dgram.createSocket('udp4');
   var requestQueue=[];
   var self = this;
   self.challengeToken=null;
   self.online=false;
-   self.currentRequest=null;
+  self.currentRequest=null;
 
-  this.requestQueue={};
 
   socket.on('message', function(msg, rinfo){
     log.debug('got a response message');
@@ -84,7 +82,7 @@ var Query = module.exports =  function Query(host, port){
       self.challengeToken = res.challengeToken;
       callback(null, self);
     }); 
-  }
+  };
 
   /**
   * Request basic stat information using session
@@ -131,8 +129,8 @@ var Query = module.exports =  function Query(host, port){
   */
   this.close = function(){
     socket.close();
-    online=false;
-    requestQueue={};
+    this.online=false;
+    requestQueue=[];
   };//end close
 
 
@@ -145,7 +143,8 @@ var Query = module.exports =  function Query(host, port){
       log.debug("nothing to do");
     }
     if(self.currentRequest && requestQueue.length >0){
-      setTimeout(processQueue, 300);
+      //if we have more requests comming up, delay next somewhat
+      setTimeout(processQueue, QUEUE_DELAY);
     }
   }
 
@@ -157,18 +156,21 @@ var Query = module.exports =  function Query(host, port){
       throw new Error('no callback');  
     }
     log.debug('adding', type, 'to queue');
-    var q={type:type, callback:callback, packet:packet};
+    var req={type:type, callback:callback, packet:packet};
 
+    //create the timeout for this request
     var t = setTimeout(function(){
-      delete q[type];
-      if(q.length===0){
-        delete requestQueue[idToken];
+      var index = requestQueue.indexOf(req);
+      if(index>=0) {
+        requestQueue.splice(index, 1);
       }
+      
       callback({error:'timeout'});
     }, REQUEST_TIMEOUT);
-    q.timeout = t;
-    requestQueue.push(q);
-    processQueue();
+    req.timeout = t;
+    requestQueue.push(req);
+    
+    process.nextTick(processQueue);
   }
 
 
@@ -177,11 +179,11 @@ var Query = module.exports =  function Query(host, port){
   */
   function deQueue(res){
     var key = res.idToken;
-    if(self.currentRequest === null || self.idToken !== res.idToken){
+    if(self.currentRequest === null || self.idToken !== key){
       //no such session running... just ignore
       log.warn('no outstanding request', res);
       return;
-    };
+    }
 
     if(self.currentRequest.type !== res.type){
       //no such type in queue... just ignore
@@ -195,7 +197,7 @@ var Query = module.exports =  function Query(host, port){
        fn(null, res);
     }
     else {
-      log.warn('no callback function', qt);
+      log.warn('no callback function');
     }
     processQueue();
   }
@@ -287,7 +289,7 @@ function readPacket(data){
 
   data = data.slice(5);
   if(res.type===CHALLENGE_TYPE){
-    res.challengeToken=parseInt(data.toString());
+    res.challengeToken=parseInt(data.toString(), 10);
   }
   else if(res.type===STAT_TYPE){
     var r = readString(data);
@@ -302,10 +304,10 @@ function readPacket(data){
       res.map = r.text;
       
       r = readString(data, r.offset);
-      res.numplayers = parseInt(r.text);
+      res.numplayers = parseInt(r.text, 10);
       
       r = readString(data, r.offset);
-      res.maxplayers = parseInt(r.text);
+      res.maxplayers = parseInt(r.text, 10);
 
       res.hostport = data.readUInt16LE(r.offset);
       r = readString(data, r.offset +2);
