@@ -48,7 +48,8 @@ if (process.env.MC_SERVER) {
       expect(globalSession).have.property('sessionId');
       expect(globalSession.challengeToken).to.be.within(1, 0XFFFFFFFF);
       //test masking
-      expect(globalSession.sessionId).to.equal(globalSession.sessionId & 0x0F0F0F0F);
+      expect(globalSession.sessionId).to
+      .equal(globalSession.sessionId & 0x0F0F0F0F);
       done();
     });
 

@@ -1,12 +1,10 @@
 /*!
- *  Copyright © 2011 Peter Magnusson.
+ *  Copyright © 2011-2014 Peter Magnusson.
  *  All rights reserved.
  */
-var Query = require('..'),
-    fs = require('fs'),
-    path = require('path');
+var Query = require('..');
 
-var f = path.resolve('./config.json');
+
 
 var HOST = process.env.MC_SERVER || 'localhost';
 var PORT = process.env.MC_PORT || 25565;
@@ -38,7 +36,6 @@ function fullStatBack(err, stat) {
   if (err) {
     console.error(err);
   }
-  var debug = require('debug')('mc');
   console.log('fullBack', stat);
   shouldWeClose();
 }

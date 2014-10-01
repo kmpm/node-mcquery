@@ -48,11 +48,11 @@ function createParsingTests(testFolder) {
 
 describe('packet', function () {
   describe('Response', function () {
-    
+
     it('a package with bad type', function (done) {
       var buf = new Buffer('080000000127231f00', 'hex');
       function fn() {
-        var p = ResponsePacket.parse(buf);  
+        ResponsePacket.parse(buf);
       }
       expect(fn).to.throw('Unknown response type: 8');
       done();
@@ -62,13 +62,13 @@ describe('packet', function () {
 
   });//--Response
   describe('Request', function () {
-    
+
     it('a challenge token', function (done) {
       var p = new RequestPacket();
       expect(p).to.have.property('type', consts.CHALLENGE_TYPE);
 
       //1793 = first generated id
-      expect(p).to.have.property('sessionId').to.be.equal(1793); 
+      expect(p).to.have.property('sessionId').to.be.equal(1793);
 
       var buf = RequestPacket.write(p);
       expect(buf.toString('hex')).to.equal('fefd0900000701');
@@ -84,7 +84,7 @@ describe('packet', function () {
         sessionId: 1,
         challengeToken: 0x0091295B
       });
-      
+
       var expected = 'fefd00000000010091295b00000000';
       var buf = RequestPacket.write(p);
       expect(buf.toString('hex')).to.equal(expected);
@@ -94,14 +94,14 @@ describe('packet', function () {
     it('a basic stat', function (done) {
       var p = new RequestPacket(consts.REQUEST_BASIC, {
         sessionId: 1,
-        challengeToken: 0x0091295B 
+        challengeToken: 0x0091295B
       });
 
       var expected = 'fefd00000000010091295b';
       var buf = RequestPacket.write(p);
       expect(buf.toString('hex')).to.equal(expected);
       done();
-    })
+    });
 
   });//-Request
 });
