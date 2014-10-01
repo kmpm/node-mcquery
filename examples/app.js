@@ -2,41 +2,51 @@
  *  Copyright © 2011 Peter Magnusson.
  *  All rights reserved.
  */
-var Query = require('../mcquery'),
+var Query = require('..'),
     fs = require('fs'),
     path = require('path');
 
 var f = path.resolve('./config.json');
 
-if (fs.existsSync(f)) {
-  var config = require(f);
-}
-else {
-  config = {host:'localhost', port:25565};
-}
+var HOST = process.env.MC_SERVER || 'localhost';
+var PORT = process.env.MC_PORT || 25565;
 
-var query = new Query(config.host, config.port);
-var reqcount = 2;
+
+
+var query = new Query(HOST, PORT);
+
 query.connect(function (err) {
   if (err) {
     console.error(err);
   }
   else {
-    query.full_stat(statCallback);
-    query.basic_stat(statCallback);
+    query.full_stat(fullStatBack);
+    query.basic_stat(basicStatBack);
   }
 });
 
 
-function statCallback(err, stat) {
+function basicStatBack(err, stat) {
   if (err) {
     console.error(err);
   }
-  else {
-    console.log(stat.hostname || stat.MOTD);
+  console.log('basicBack', stat);
+  shouldWeClose();
+}
+
+function fullStatBack(err, stat) {
+  if (err) {
+    console.error(err);
   }
-  reqcount--;
-  if (reqcount < 1) {
+  var debug = require('debug')('mc');
+  console.log('fullBack', stat);
+  shouldWeClose();
+}
+
+
+function shouldWeClose() {
+  //have we got all answers
+  if (query.outstandingRequests() === 0) {
     query.close();
   }
 }

@@ -1,5 +1,5 @@
 { type: 0,
-  idToken: 1794,
+  sessionId: 1794,
   MOTD: 'A Minecraft Server',
   gametype: 'SMP',
   map: 'world',

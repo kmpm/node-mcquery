@@ -11,15 +11,15 @@ var expect = Lab.expect;
 
 
 var SERVER_EXISTING = {
-  host: process.env.MC_SERVER_IP || 'localhost', //'89.221.255.150'
-  port: process.env.MC_SERVER_PORT = 25565,
+  host: process.env.MC_SERVER || 'localhost', //'89.221.255.150'
+  port: process.env.MC_PORT = 25565,
 };
 
 var Query = require('../');
 
 var globalQuery = new Query(SERVER_EXISTING.host, SERVER_EXISTING.port);
 var globalSession;
-if (process.env.MC_SERVER_IP) {
+if (process.env.MC_SERVER) {
   describe('mcquery', function () {
 
     after(function (done) {
@@ -44,11 +44,11 @@ if (process.env.MC_SERVER_IP) {
       done();
     });
 
-    it('should have a correct idToken', function (done) {
-      expect(globalSession).have.property('idToken');
+    it('should have a correct sessionId', function (done) {
+      expect(globalSession).have.property('sessionId');
       expect(globalSession.challengeToken).to.be.within(1, 0XFFFFFFFF);
       //test masking
-      expect(globalSession.idToken).to.equal(globalSession.idToken & 0x0F0F0F0F);
+      expect(globalSession.sessionId).to.equal(globalSession.sessionId & 0x0F0F0F0F);
       done();
     });
 

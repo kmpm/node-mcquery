@@ -1,5 +1,5 @@
 { type: 0,
-  idToken: 1795,
+  sessionId: 1795,
   hostname: 'A Minecraft Server',
   gametype: 'SMP',
   game_id: 'MINECRAFT',
