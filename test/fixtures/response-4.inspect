@@ -1,0 +1,13 @@
+{ type: 0,
+  idToken: 1795,
+  hostname: 'A Minecraft Server',
+  gametype: 'SMP',
+  game_id: 'MINECRAFT',
+  version: '1.8',
+  plugins: '',
+  map: 'world',
+  numplayers: '1',
+  maxplayers: '20',
+  hostport: '25565',
+  hostip: '172.17.0.2',
+  player_: ['crippledcanary'] }

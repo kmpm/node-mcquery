@@ -1,0 +1,9 @@
+{ type: 0,
+  idToken: 1794,
+  MOTD: 'A Minecraft Server',
+  gametype: 'SMP',
+  map: 'world',
+  numplayers: 1,
+  maxplayers: 20,
+  hostport: 25565,
+  hostip: '172.17.0.2' }
