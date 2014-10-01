@@ -2,7 +2,7 @@
 A library for accessing a Minecraft server using the Query protocol
 
 ## Status
-[Build Status]: https://travis-ci.org/kmpm/node-mcquery
+[![Build Status](https://travis-ci.org/kmpm/node-mcquery.svg?branch=master)](https://travis-ci.org/kmpm/node-mcquery)
 
 ## References ##
 * http://wiki.vg/Query
