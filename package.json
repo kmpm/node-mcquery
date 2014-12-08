@@ -16,7 +16,8 @@
   },
   "scripts": {
     "test": "lab -c",
-    "lint": "jshint lib test examples index.js && jscs lib test examples index.js"
+    "lint": "jshint lib test examples index.js && jscs lib test examples index.js",
+    "coveralls": "lab -r lcov | ./node_modules/.bin/coveralls"
   },
   "bugs": {
     "url": "http://github.com/kmpm/node-mcquery/issues"
@@ -26,6 +27,7 @@
     "url": "http://github.com/kmpm/node-mcquery.git"
   },
   "devDependencies": {
+    "coveralls": "^2.11.2",
     "jscs": "^1.6.2",
     "jshint": "^2.5.6",
     "lab": "^4.5.1",
