@@ -32,7 +32,7 @@ describe('mcquery', function () {
     done();
   });
 
-  before(function (done) {
+  before({timeout: 5000}, function (done) {
     if (process.env.MC_SERVER) {
       setupClient();
     }
@@ -48,14 +48,20 @@ describe('mcquery', function () {
     }
 
     function setupClient() {
-      globalQuery = new Query(SERVER_EXISTING.host, SERVER_EXISTING.port);
-      //this.timeout(10000);
-      globalQuery.connect(function (err, session) {
-        expect(err).to.not.exist;
-        expect(session).to.exist;
-        globalSession = session;
-        done();
-      });
+      try {
+        globalQuery = new Query(SERVER_EXISTING.host, SERVER_EXISTING.port);
+        //this.timeout(10000);
+        globalQuery.connect(function (err, session) {
+          if (err) {
+            return done(err);
+          }
+          globalSession = session;
+          done(err);
+        });
+      }
+      catch (ex) {
+        done(ex);
+      }
     }
 
   });
@@ -111,7 +117,7 @@ describe('mcquery', function () {
 
   it('should timeout', {timeout: 5000, only:true}, function (done) {
     if (!mockServer) {
-      done();
+      return done();
     }
     mockServer.ignore = true;
     globalQuery.doHandshake(function (err) {
