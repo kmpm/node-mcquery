@@ -59,7 +59,6 @@ describe('packet', function () {
     });
 
     createParsingTests(fixtureDir);
-
   });//--Response
   describe('Request', function () {
 
@@ -79,6 +78,7 @@ describe('packet', function () {
       done();
     });
 
+
     it('a full stat', function (done) {
       var p = new RequestPacket(consts.REQUEST_FULL, {
         sessionId: 1,
@@ -91,6 +91,21 @@ describe('packet', function () {
       done();
     });
 
+
+    it('a full stat with payload', function (done) {
+      var p = new RequestPacket(consts.REQUEST_FULL, {
+        payload: new Buffer([1, 2, 3, 4]),
+        sessionId: 1,
+        challengeToken: 0x0091295B
+      });
+
+      var expected = 'fefd00000000010091295b01020304';
+      var buf = RequestPacket.write(p);
+      expect(buf.toString('hex')).to.equal(expected);
+      done();
+    });
+
+
     it('a basic stat', function (done) {
       var p = new RequestPacket(consts.REQUEST_BASIC, {
         sessionId: 1,
@@ -100,6 +115,93 @@ describe('packet', function () {
       var expected = 'fefd00000000010091295b';
       var buf = RequestPacket.write(p);
       expect(buf.toString('hex')).to.equal(expected);
+      done();
+    });
+
+    it('packet with bad type', function (done) {
+      expect(fn).to.throw(Error);
+      function fn() {
+        var p = new RequestPacket(999);
+      }
+      done();
+    });
+
+    it('should not write bad type', function (done) {
+      expect(fn).to.throw(Error, 'type did not have a correct value 999');
+
+      function fn() {
+        var p = new RequestPacket();
+        p.type=999;
+        RequestPacket.write(p);
+      }
+      done();
+    });
+
+
+    it('should not write bad sessionId', function (done) {
+      var p = new RequestPacket();
+      p.sessionId = 0;
+      expect(fn).to.throw(Error, 'sessionId is bad or missing');
+
+      p.sessionId = 16;
+      expect(fn).to.throw(Error, 'sessionId is bad or missing');
+
+      p.sessionId = '100';
+      expect(fn).to.throw(Error, 'sessionId is bad or missing');
+
+      p.sessionId = 4147483647;
+      expect(fn).to.throw(Error, 'sessionId is bad or missing');
+
+      function fn() {
+        RequestPacket.write(p);
+      }
+      done();
+    });
+
+
+    it('should not write bad payload', function (done) {
+      var p = new RequestPacket();
+      p.payload = 'asdf';
+      expect(fn).to.throw(Error, 'payload was not a Buffer instance');
+
+      function fn() {
+        RequestPacket.write(p);
+      }
+      done();
+    });
+
+
+    it('should not write STAT without challengeToken', function (done) {
+      var p = new RequestPacket(consts.REQUEST_BASIC);
+
+      delete p.challengeToken
+      expect(fn).to.throw(Error, 'challengeToken is missing or wrong');
+
+      p.challengeToken = 0;
+      expect(fn).to.throw(Error, 'challengeToken is missing or wrong');
+
+      p.challengeToken = 4147483647;
+      expect(fn).to.throw(Error, 'challengeToken is missing or wrong');
+
+      function fn() {
+        RequestPacket.write(p);
+      }
+      done();
+    });
+
+
+    it('not parse bad packet', function (done) {
+      //bad magic
+      var buf = new Buffer('000000', 'hex');
+      expect(fn).to.throw(Error, 'Error in Magic Field');
+
+      //bad length
+      buf = new Buffer('FEFD0001020304FF', 'hex');
+      expect(fn).to.throw(Error, 'payload not implemented');
+
+      function fn() {
+        RequestPacket.parse(buf);
+      }
       done();
     });
 
