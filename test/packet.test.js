@@ -5,7 +5,8 @@ var lab = exports.lab = Lab.script();
 
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var Code = require('code');
+var expect = Code.expect;
 
 var fs = require('fs');
 var path = require('path');
@@ -30,7 +31,13 @@ function createParsingTests(testFolder) {
       var js;
       if (fs.existsSync(jsFile)) {
         js = tools.readJs(jsFile);
-        expect(ret).to.eql(js);
+        expect(ret).to.deep.include(js);
+
+        //roundtrip
+        var bin2 = ResponsePacket.write(ret);
+        //expect(bin2.length, 'binary length').to.equal(bin.length);
+        expect(bin2.toString('hex')).to.equal(bin.toString('hex'));
+
       }
       else {
         tools.writeJs(jsFile, ret);
@@ -59,21 +66,22 @@ describe('packet', function () {
     });
 
     createParsingTests(fixtureDir);
+
   });//--Response
   describe('Request', function () {
 
     it('a challenge token', function (done) {
       var p = new RequestPacket();
-      expect(p).to.have.property('type', consts.CHALLENGE_TYPE);
-
-      //1793 = first generated id
-      expect(p).to.have.property('sessionId').to.be.equal(1793);
+      expect(p).to.include({
+        type: consts.CHALLENGE_TYPE,
+        sessionId: 1793
+      });
 
       var buf = RequestPacket.write(p);
       expect(buf.toString('hex')).to.equal('fefd0900000701');
 
       var p2 = RequestPacket.parse(buf);
-      expect(p2).to.eql(p);
+      expect(p2).to.deep.equal(p);
 
       done();
     });
@@ -122,6 +130,7 @@ describe('packet', function () {
       expect(fn).to.throw(Error);
       function fn() {
         var p = new RequestPacket(999);
+        p.type;
       }
       done();
     });
@@ -131,7 +140,7 @@ describe('packet', function () {
 
       function fn() {
         var p = new RequestPacket();
-        p.type=999;
+        p.type = 999;
         RequestPacket.write(p);
       }
       done();
@@ -174,7 +183,7 @@ describe('packet', function () {
     it('should not write STAT without challengeToken', function (done) {
       var p = new RequestPacket(consts.REQUEST_BASIC);
 
-      delete p.challengeToken
+      delete p.challengeToken;
       expect(fn).to.throw(Error, 'challengeToken is missing or wrong');
 
       p.challengeToken = 0;
@@ -196,8 +205,8 @@ describe('packet', function () {
       expect(fn).to.throw(Error, 'Error in Magic Field');
 
       //bad length
-      buf = new Buffer('FEFD0001020304FF', 'hex');
-      expect(fn).to.throw(Error, 'payload not implemented');
+      // buf = new Buffer('fefd0000000703002ef08a', 'hex');
+      // expect(fn).to.throw(Error, 'payload not implemented');
 
       function fn() {
         RequestPacket.parse(buf);
@@ -205,5 +214,13 @@ describe('packet', function () {
       done();
     });
 
+    it('should parse basic_stat', function (done) {
+      var buf = new Buffer('fefd0000000703002ef08a', 'hex');
+      var p = RequestPacket.parse(buf);
+      expect(p).to.include(['type', 'challengeToken']);
+      expect(p.type, 'type is wrong').to.equal(consts.REQUEST_BASIC);
+      done();
+      // expect(fn).to.throw(Error, 'payload not implemented');
+    });
   });//-Request
 });
