@@ -1,6 +1,6 @@
 {
   "name": "mcquery",
-  "description": "minecraft query protocol wrapper for node",
+  "description": "minecraft query protocol for node",
   "keywords": [
     "mcquery",
     "protocol",
@@ -9,7 +9,7 @@
   ],
   "homepage": "https://github.com/kmpm/node-mcquery",
   "author": "Peter Magnusson kmpm@birchroad.net",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "main": "index.js",
   "engines": {
     "node": ">=v0.8.0"

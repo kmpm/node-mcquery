@@ -1,4 +1,7 @@
-
+/*!
+ *  Copyright © 2011-2014 Peter Magnusson.
+ *  All rights reserved.
+ */
 var dgram = require('dgram');
 var ResponsePacket = require('../lib/responsepacket');
 var RequestPacket = require('../lib/requestpacket');

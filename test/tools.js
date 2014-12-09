@@ -1,3 +1,7 @@
+/*!
+ *  Copyright © 2011-2014 Peter Magnusson.
+ *  All rights reserved.
+ */
 var debug = require('debug')('mcquery:test:tools');
 var fs = require('fs');
 var vm = require('vm');
