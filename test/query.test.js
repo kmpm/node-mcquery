@@ -143,13 +143,14 @@ describe('mcquery', function () {
     mockServer.badReply = true;
     globalQuery.doHandshake(function (err) {
       expect(err).to.exist();
-      expect(globalQuery.dropped).to.equal(pre+1);
+      expect(globalQuery.dropped).to.equal(pre + 1);
       done();
     });
   });
 
 
-  it('should ignore response with session not in queue', {timeout: 5000}, function (done) {
+  it('should ignore response with session not in queue', {timeout: 5000},
+  function (done) {
     if (!mockServer) {
       return done();
     }
@@ -157,7 +158,7 @@ describe('mcquery', function () {
     mockServer.randomResponse = true;
     globalQuery.doHandshake(function (err) {
       expect(err).to.exist();
-      expect(globalQuery.dropped).to.equal(pre+1);
+      expect(globalQuery.dropped).to.equal(pre + 1);
       done();
     });
   });
@@ -201,7 +202,7 @@ describe('mcquery', function () {
     it('result should be correct', function (done) {
       expect(result).exist;
       expect(result).to.include(['MOTD', 'gametype', 'map', 'numplayers',
-        'maxplayers', 'hostport', 'hostip']);
+      'maxplayers', 'hostport', 'hostip']);
 
       expect(result.numplayers).to.be.within(0, 1024);
       expect(result.maxplayers).to.be.within(0, 1024);
@@ -279,15 +280,15 @@ describe('mcquery', function () {
       var counter = 0;
       var gotError = false;
       mockServer.delay = 400;
-      for(; i < 5; i++) {
+      for (; i < 5; i++) {
         globalQuery.full_stat(fn);
       }
 
-      function fn (err, data) {
+      function fn (err) {
         if (gotError) {
           return;
         }
-        if(err) {
+        if (err) {
           gotError = true;
         }
         expect(err).not.exist();
@@ -296,7 +297,7 @@ describe('mcquery', function () {
       }
 
       function checkDone() {
-        if (counter == i) {
+        if (counter === i) {
           done();
         }
       }

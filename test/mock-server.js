@@ -27,7 +27,8 @@ var Server = module.exports = function (options) {
     maxplayers: '20',
     hostport: this.settings.port,
     hostip: this.settings.ip,
-    player_: ['crippledcanary']};
+    player_: ['crippledcanary']
+  };
 
   this.ignore = false;
   this.badReply = false;

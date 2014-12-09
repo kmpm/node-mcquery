@@ -82,7 +82,7 @@ describe('packet', function () {
         //player_: ['crippledcanary']
       });
 
-      var p = ResponsePacket.parse(buf);
+      ResponsePacket.parse(buf);
       done();
     });
 
