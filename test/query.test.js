@@ -276,10 +276,13 @@ describe('mcquery', function () {
     });
 
     it('should queue lots of requests', {timeout: 6000}, function (done) {
+
       var i = 0;
       var counter = 0;
       var gotError = false;
-      mockServer.delay = 400;
+      if (mockServer) {
+        mockServer.delay = 400;
+      }
       for (; i < 5; i++) {
         globalQuery.full_stat(fn);
       }
