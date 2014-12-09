@@ -30,6 +30,9 @@ var Server = module.exports = function (options) {
     player_: ['crippledcanary']};
 
   this.ignore = false;
+  this.badReply = false;
+  this.randomResponse = false;
+  this.delay = 30;
 };
 
 
@@ -67,6 +70,13 @@ Server.prototype.bind = function (callback) {
     res = new ResponsePacket();
     res.sessionId = req.sessionId;
     res.type = req.type;
+
+    if (self.randomResponse) {
+      self.randomResponse = false;
+      log.debug('single random response');
+      res.sessionId  = 12345;
+    }
+
     switch (req.type) {
       case consts.CHALLENGE_TYPE:
         res.challengeToken = 3076233 + tokenCounter++;
@@ -90,6 +100,8 @@ Server.prototype.bind = function (callback) {
         throw new Error('request type not implemented');
     }
 
+
+
     var buf;
     try {
       buf = ResponsePacket.write(res);
@@ -98,7 +110,12 @@ Server.prototype.bind = function (callback) {
       log.error(ex);
       throw ex;
     }
-    process.nextTick(function () {
+    if (self.badReply) {
+      log.debug('single bad reply');
+      self.badReply = false;
+      buf = new Buffer(11);
+    }
+    setTimeout(function () {
       log.debug('mock response', res);
       socket.send(buf, 0, buf.length, rinfo.port, rinfo.address,
       function (err, bytes) {
@@ -107,6 +124,6 @@ Server.prototype.bind = function (callback) {
         }
         log.debug('%d bytes sent', bytes);
       });
-    });
+    }, self.delay);
   });
 };

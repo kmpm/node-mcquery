@@ -65,6 +65,39 @@ describe('packet', function () {
       done();
     });
 
+    it('a packet without players', function (done) {
+      var buf = ResponsePacket.write({
+        type: 0,
+        sessionId: 1795,
+        hostname: 'A Minecraft Server',
+        gametype: 'SMP',
+        game_id: 'MINECRAFT',
+        version: '1.8',
+        plugins: '',
+        map: 'world',
+        numplayers: '1',
+        maxplayers: '20',
+        hostport: '25565',
+        hostip: '172.17.0.2',
+        //player_: ['crippledcanary']
+      });
+
+      var p = ResponsePacket.parse(buf);
+      done();
+    });
+
+    it('should only support STAT_TYPE and CHALLENGE_TYPE', function (done) {
+      expect(fn).to.throw(Error, 'packet type 2 not implemented');
+      done();
+
+      function fn() {
+        ResponsePacket.write({
+          type: consts.REQUEST_FULL,
+          sessionId: 123
+        });
+      }
+    });
+
     createParsingTests(fixtureDir);
 
   });//--Response
@@ -212,6 +245,16 @@ describe('packet', function () {
         RequestPacket.parse(buf);
       }
       done();
+    });
+
+    it('should not parse anything but STAT_TYPE', function (done) {
+      var buf = new Buffer('fefd0900000703002ef08a', 'hex');
+      expect(fn).to.throw(Error, 'payload not implemented');
+      done();
+
+      function fn() {
+        RequestPacket.parse(buf);
+      }
     });
 
     it('should parse basic_stat', function (done) {

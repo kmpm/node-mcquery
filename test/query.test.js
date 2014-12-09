@@ -66,6 +66,14 @@ describe('mcquery', function () {
 
   });
 
+
+  it('should default to localhost:25565', function (done) {
+    var q = new Query();
+    expect(q.address()).to.include({address: '127.0.0.1', port:25565});
+    done();
+  });
+
+
   it('should have a proper session', function (done) {
     expect(globalSession).be.instanceOf(Query);
     expect(globalSession).include(['challengeToken']);
@@ -89,8 +97,8 @@ describe('mcquery', function () {
       expect(session.challengeToken).not.be.equal(oldChallenge);
       done();
     });
-
   });
+
 
   it('should be able to do an .doHandshake without callback', function (done) {
     var oldChallenge = globalSession.challengeToken;
@@ -115,7 +123,7 @@ describe('mcquery', function () {
   });
 
 
-  it('should timeout', {timeout: 5000, only:true}, function (done) {
+  it('should timeout', {timeout: 5000}, function (done) {
     if (!mockServer) {
       return done();
     }
@@ -125,6 +133,49 @@ describe('mcquery', function () {
       done();
     });
   });
+
+
+  it('should ignore bad response', {timeout: 5000}, function (done) {
+    if (!mockServer) {
+      return done();
+    }
+    var pre = globalQuery.dropped;
+    mockServer.badReply = true;
+    globalQuery.doHandshake(function (err) {
+      expect(err).to.exist();
+      expect(globalQuery.dropped).to.equal(pre+1);
+      done();
+    });
+  });
+
+
+  it('should ignore response with session not in queue', {timeout: 5000}, function (done) {
+    if (!mockServer) {
+      return done();
+    }
+    var pre = globalQuery.dropped;
+    mockServer.randomResponse = true;
+    globalQuery.doHandshake(function (err) {
+      expect(err).to.exist();
+      expect(globalQuery.dropped).to.equal(pre+1);
+      done();
+    });
+  });
+
+
+  it('send should require RequestPacket', function (done) {
+    expect(fn).to.throw(TypeError, 'packet is wrong');
+    globalQuery.send('asdf', function (err) {
+      expect(err).to.be.instanceOf(TypeError);
+      done();
+    });
+
+    function fn() {
+      globalQuery.send('asdf');
+    }
+
+  });
+
 
   describe('.basic_stat(err, result)', function () {
     var result, err;
@@ -160,13 +211,23 @@ describe('mcquery', function () {
     });
 
     it('should require callback', function (done) {
-      expect(fn).to.throw(Error, 'no callback');
+      expect(fn).to.throw(Error, 'callback is not a function');
       function fn() {
         globalQuery.basic_stat();
       }
       done();
     });
-  });
+
+    it('should require a challengeToken', function (done) {
+      globalQuery.challengeToken = null;
+      globalQuery.full_stat(function (err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.be.equal('bad session');
+        done();
+      });
+    });
+
+  });//end basic_stat
 
 
   describe('.full_stat(err, result)', function () {
@@ -213,6 +274,36 @@ describe('mcquery', function () {
 
     });
 
+    it('should queue lots of requests', {timeout: 6000}, function (done) {
+      var i = 0;
+      var counter = 0;
+      var gotError = false;
+      mockServer.delay = 400;
+      for(; i < 5; i++) {
+        globalQuery.full_stat(fn);
+      }
+
+      function fn (err, data) {
+        if (gotError) {
+          return;
+        }
+        if(err) {
+          gotError = true;
+        }
+        expect(err).not.exist();
+        counter++;
+        checkDone();
+      }
+
+      function checkDone() {
+        if (counter == i) {
+          done();
+        }
+      }
+
+    });
+
+
     it('should require callback', function (done) {
       expect(fn).to.throw(Error, 'callback is not a function');
       function fn() {
@@ -220,6 +311,20 @@ describe('mcquery', function () {
       }
       done();
     });
+
+
+    it('should require a challengeToken', function (done) {
+      globalQuery.challengeToken = null;
+      globalQuery.full_stat(function (err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.be.equal('bad session');
+        done();
+      });
+    });
+
+
+
+
   });
 });
 
