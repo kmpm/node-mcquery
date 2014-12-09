@@ -103,15 +103,27 @@ describe('packet', function () {
   });//--Response
   describe('Request', function () {
 
-    it('a challenge token', function (done) {
+    it('should generate valid sessinIds', function (done) {
+      expect(RequestPacket.generateToken(1)).to.equal(1);
+      expect(RequestPacket.generateToken()).to.equal(2);
+      expect(RequestPacket.generateToken(16)).to.equal(0x100);
+      expect(RequestPacket.generateToken(65535)).to.equal(0x0f0f0f0f);
+      expect(RequestPacket.generateToken()).to.equal(1);
+      done();
+    });
+
+    it('should create a challenge token', function (done) {
       var p = new RequestPacket();
       expect(p).to.include({
         type: consts.CHALLENGE_TYPE,
-        sessionId: 1793
       });
+      expect(p.sessionId).to.be.above(0);
+      //left pad the id
+      var id = p.sessionId.toString(16);
+      id = ('00000000' + id).substr(-8, 8);
 
       var buf = RequestPacket.write(p);
-      expect(buf.toString('hex')).to.equal('fefd0900000701');
+      expect(buf.toString('hex')).to.equal('fefd09' + id);
 
       var p2 = RequestPacket.parse(buf);
       expect(p2).to.deep.equal(p);
