@@ -11,7 +11,9 @@ var Query = require('..');
 var HOST = process.env.MC_SERVER || 'localhost';
 var PORT = process.env.MC_PORT || 25565;
 
-var query = new Query(HOST, PORT);
+//uses the optional settings
+//for a longer timeout;
+var query = new Query(HOST, PORT, {timeout: 10000});
 
 function checkMcServer() {
   //connect every time to get a new challengeToken

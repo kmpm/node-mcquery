@@ -134,16 +134,34 @@ describe('mcquery', function () {
     });
   });
 
-
-  it('should ignore bad response', {timeout: 5000}, function (done) {
+  it('should accept different timeout', {timeout:1000}, function (done) {
     if (!mockServer) {
       return done();
     }
-    var pre = globalQuery.dropped;
+    var query = new Query(SERVER_EXISTING.host, SERVER_EXISTING.port,
+      {timeout: 500}
+    );
+
+    mockServer.ignore = true;
+    query.doHandshake(function (err) {
+      expect(err).to.exist();
+      expect(err.message).to.equal('Request timeout');
+      done();
+    });
+  });
+
+
+  it('should ignore bad response', {timeout: 4000}, function (done) {
+    if (!mockServer) {
+      return done();
+    }
+    //var pre = globalQuery.dropped;
     mockServer.badReply = true;
+
     globalQuery.doHandshake(function (err) {
       expect(err).to.exist();
-      expect(globalQuery.dropped).to.equal(pre + 1);
+      expect(err.message).to.equal('Request timeout');
+      //expect(globalQuery.dropped, 'dropped packages').to.equal(pre + 1);
       done();
     });
   });
@@ -158,6 +176,7 @@ describe('mcquery', function () {
     mockServer.randomResponse = true;
     globalQuery.doHandshake(function (err) {
       expect(err).to.exist();
+      expect(err.message).to.equal('Request timeout');
       expect(globalQuery.dropped).to.equal(pre + 1);
       done();
     });
