@@ -231,7 +231,7 @@ describe('packet', function () {
       delete p.challengeToken;
       expect(fn).to.throw(Error, 'challengeToken is missing or wrong');
 
-      p.challengeToken = 0;
+      p.challengeToken = -2147483648;
       expect(fn).to.throw(Error, 'challengeToken is missing or wrong');
 
       p.challengeToken = 4147483647;
