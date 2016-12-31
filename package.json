@@ -9,7 +9,7 @@
   ],
   "homepage": "https://github.com/kmpm/node-mcquery",
   "author": "Peter Magnusson kmpm@birchroad.net",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "main": "index.js",
   "engines": {
     "node": ">=v0.8.0"
@@ -30,13 +30,12 @@
     "coveralls": "^2.11.2",
     "jscs": "^1.6.2",
     "jshint": "^2.5.6",
-    "lab": "^4.5.1",
+    "lab": "^5.1.0",
     "xtend": "^4.0.0"
   },
   "dependencies": {
     "buffercursor": "0.0.12",
     "code": "^1.2.1",
-    "debug": "^2.0.0",
-    "lab": "^5.1.0"
+    "debug": "^2.0.0"
   }
 }
