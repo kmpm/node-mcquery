@@ -12,7 +12,7 @@
   "version": "0.2.8",
   "main": "index.js",
   "engines": {
-    "node": ">=v0.8.0"
+    "node": ">=6"
   },
   "scripts": {
     "test": "lab -c",
