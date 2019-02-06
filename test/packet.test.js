@@ -31,7 +31,7 @@ function createParsingTests(testFolder) {
       var js;
       if (fs.existsSync(jsFile)) {
         js = tools.readJs(jsFile);
-        expect(ret).to.deep.include(js);
+        expect(ret).to.include(js);
 
         //roundtrip
         var bin2 = ResponsePacket.write(ret);
@@ -126,7 +126,7 @@ describe('packet', function () {
       expect(buf.toString('hex')).to.equal('fefd09' + id);
 
       var p2 = RequestPacket.parse(buf);
-      expect(p2).to.deep.equal(p);
+      expect(p2).to.equal(p);
 
       done();
     });
