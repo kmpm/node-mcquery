@@ -28,7 +28,7 @@ exports.readBin = function (filename) {
 };
 
 exports.prepareJs = function (text) {
-  //replace <Buffer aa bb> with new Buffer("aabb", "hex")
+  //replace <Buffer aa bb> with Buffer.from("aabb", "hex")
   var matches = text.match(/(<Buffer[ a-f0-9]*>)/g);
   if (matches) {
     debug('matches', matches);
@@ -36,7 +36,7 @@ exports.prepareJs = function (text) {
       var bytes = m.match(/ ([a-f0-9]{2})/g);
       var str = bytes.join('');
       str = str.replace(/ /g, '');
-      var r = 'new Buffer("' + str + '", "hex")';
+      var r = 'Buffer.from("' + str + '", "hex")';
       text = text.replace(m, r);
     });
   }

@@ -117,7 +117,7 @@ Server.prototype.bind = function (callback) {
     if (self.badReply) {
       log.debug('single bad reply');
       self.badReply = false;
-      buf = new Buffer(11);
+      buf = Buffer.from(11);
     }
     setTimeout(function () {
       log.debug('mock response', res);

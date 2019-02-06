@@ -57,7 +57,7 @@ describe('packet', function () {
   describe('Response', function () {
 
     it('a package with bad type', function (done) {
-      var buf = new Buffer('080000000127231f00', 'hex');
+      var buf = Buffer.from('080000000127231f00', 'hex');
       function fn() {
         ResponsePacket.parse(buf);
       }
@@ -147,7 +147,7 @@ describe('packet', function () {
 
     it('a full stat with payload', function (done) {
       var p = new RequestPacket(consts.REQUEST_FULL, {
-        payload: new Buffer([1, 2, 3, 4]),
+        payload: Buffer.from([1, 2, 3, 4]),
         sessionId: 1,
         challengeToken: 0x0091295B
       });
@@ -246,11 +246,11 @@ describe('packet', function () {
 
     it('not parse bad packet', function (done) {
       //bad magic
-      var buf = new Buffer('000000', 'hex');
+      var buf = Buffer.from('000000', 'hex');
       expect(fn).to.throw(Error, 'Error in Magic Field');
 
       //bad length
-      // buf = new Buffer('fefd0000000703002ef08a', 'hex');
+      // buf = Buffer.from('fefd0000000703002ef08a', 'hex');
       // expect(fn).to.throw(Error, 'payload not implemented');
 
       function fn() {
@@ -260,7 +260,7 @@ describe('packet', function () {
     });
 
     it('should not parse anything but STAT_TYPE', function (done) {
-      var buf = new Buffer('fefd0900000703002ef08a', 'hex');
+      var buf = Buffer.from('fefd0900000703002ef08a', 'hex');
       expect(fn).to.throw(Error, 'payload not implemented');
       done();
 
@@ -270,7 +270,7 @@ describe('packet', function () {
     });
 
     it('should parse basic_stat', function (done) {
-      var buf = new Buffer('fefd0000000703002ef08a', 'hex');
+      var buf = Buffer.from('fefd0000000703002ef08a', 'hex');
       var p = RequestPacket.parse(buf);
       expect(p).to.include(['type', 'challengeToken']);
       expect(p.type, 'type is wrong').to.equal(consts.REQUEST_BASIC);
