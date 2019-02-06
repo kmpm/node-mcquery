@@ -3,8 +3,10 @@ A library for accessing a Minecraft server using the Query protocol
 
 ## Status
 [![Build Status](https://travis-ci.org/kmpm/node-mcquery.svg?branch=master)](https://travis-ci.org/kmpm/node-mcquery)
-
 [![Coverage Status](https://coveralls.io/repos/kmpm/node-mcquery/badge.svg)](https://coveralls.io/r/kmpm/node-mcquery)
+
+## Examples
+See [examples](https://github.com/kmpm/node-mcquery/tree/master/examples)
 
 ## References
 * http://wiki.vg/Query
