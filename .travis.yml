@@ -1,6 +1,6 @@
  language: node_js
  node_js:
-   - "6"
+   # Dependency `code` uses async function, so requires node>=8
    - "8"
    - "10"
    - "11"
