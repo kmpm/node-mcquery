@@ -1,20 +1,21 @@
 # Node-MCQuery
 A library for accessing a Minecraft server using the Query protocol
 
+If you need to run under node < 8.0.0 then you have to use a version < 1.0.0 of this library
+
 ## Status
 [![Build Status](https://travis-ci.org/kmpm/node-mcquery.svg?branch=master)](https://travis-ci.org/kmpm/node-mcquery)
-
 [![Coverage Status](https://coveralls.io/repos/kmpm/node-mcquery/badge.png)](https://coveralls.io/r/kmpm/node-mcquery)
+
 ## References ##
 * http://wiki.vg/Query
 
 
 
-## License 
-
+## License
 (The MIT License)
 
-Copyright (c) 2011-2014 Peter Magnusson &lt;peter@birchroad.net&gt;
+Copyright (c) 2011-2018 Peter Magnusson &lt;peter@birchroad.net&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

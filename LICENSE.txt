@@ -1,6 +1,6 @@
 (The MIT License)
 
-Copyright (c) 2011-2014 Peter Magnusson &lt;peter@birchroad.net&gt;
+Copyright (c) 2011-2018 Peter Magnusson &lt;peter@birchroad.net&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
