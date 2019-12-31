@@ -1,7 +1,7 @@
 var fs = require('fs')
 var path = require('path')
 
-const Lab = require('lab')
+const Lab = require('@hapi/lab')
 const { describe, it } = exports.lab = Lab.script()
 const { expect } = require('code')
 

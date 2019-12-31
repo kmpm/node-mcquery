@@ -1,8 +1,8 @@
 /*!
- *  Copyright © 2011-2018 Peter Magnusson.
+ *  Copyright © 2011-2019 Peter Magnusson.
  *  All rights reserved.
  */
-const Lab = require('lab')
+const Lab = require('@hapi/lab')
 const { describe, it, before, beforeEach, afterEach } = exports.lab = Lab.script()
 const { expect } = require('code')
 const log = new (require('../lib/log'))('mcquery:test:query')
