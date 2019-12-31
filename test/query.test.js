@@ -1,5 +1,5 @@
 /*!
- *  Copyright © 2011-2019 Peter Magnusson.
+ *  Copyright © 2011-2020 Peter Magnusson.
  *  All rights reserved.
  */
 const Lab = require('@hapi/lab')

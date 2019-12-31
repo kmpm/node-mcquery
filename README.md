@@ -15,7 +15,7 @@ If you need to run under node < 8.0.0 then you have to use a version < 1.0.0 of 
 ## License
 (The MIT License)
 
-Copyright (c) 2011-2018 Peter Magnusson &lt;peter@birchroad.net&gt;
+Copyright (c) 2011-2020 Peter Magnusson &lt;peter@kmpm.se&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

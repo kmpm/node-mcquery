@@ -1,7 +1,7 @@
 /*!
  *  Check the server every 5 seconds
  *
- *  Copyright © 2011-2018 Peter Magnusson.
+ *  Copyright © 2011-2020 Peter Magnusson.
  *  All rights reserved.
  */
 var Query = require('..')
