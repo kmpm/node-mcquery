@@ -11,6 +11,27 @@ If you need to run under node < 8.0.0 then you have to use a version < 1.0.0 of 
 * http://wiki.vg/Query
 
 
+## FAQ
+__Q__: Response attribute `hostname`  returns the server motd on full_stat.
+
+__A__: Correct. That is according to the definition in https://wiki.vg/Query#Full_stat .
+The response from the server uses the keyword `hostname` for the MOTD data.
+```javascript
+{ type: 0,
+  sessionId: 1,
+  hostname: 'A Vanilla Minecraft Server powered by Docker',
+  gametype: 'SMP',
+  game_id: 'MINECRAFT',
+  version: '1.15.2',
+  plugins: '',
+  map: 'world',
+  numplayers: '0',
+  maxplayers: '20',
+  hostport: '25565',
+  hostip: '172.18.0.2',
+  player_: [],
+  from: { address: '127.0.0.1', port: 25565 } }
+```
 
 ## License
 (The MIT License)
