@@ -9,14 +9,7 @@ var PORT = process.env.MC_PORT || 25565
 
 var query = new Query(HOST, PORT)
 
-query.connect(function (err) {
-  if (err) {
-    console.error(err)
-  } else {
-    query.full_stat(fullStatBack)
-    query.basic_stat(basicStatBack)
-  }
-})
+
 
 function basicStatBack (err, stat) {
   if (err) {
@@ -40,3 +33,15 @@ function shouldWeClose () {
     query.close()
   }
 }
+
+console.log('Connecting to server')
+query.connect()
+.then(()=> {
+  console.log('asking for basic_stat')
+  query.basic_stat(basicStatBack)
+  console.log('Asking for full_stat')
+  query.full_stat(fullStatBack)
+})
+.catch(err=> {
+  console.error('error connecting', err)
+})
