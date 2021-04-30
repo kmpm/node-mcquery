@@ -4,7 +4,7 @@ A library for accessing a Minecraft server using the Query protocol
 If you need to run under node < 8.0.0 then you have to use a version < 1.0.0 of this library
 
 ## Status
-![Build Status](https://github.com/kmpm/node-mcquery/actions/workflows/nodejs.yml/badge.svg)
+[![CI Testing](https://github.com/kmpm/node-mcquery/actions/workflows/main.yml/badge.svg)](https://github.com/kmpm/node-mcquery/actions/workflows/main.yml)
 
 
 ## References ##
