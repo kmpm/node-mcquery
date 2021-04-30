@@ -10,7 +10,7 @@
   ],
   "homepage": "https://github.com/kmpm/node-mcquery",
   "author": "Peter Magnusson <peter@kmpm.se>",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "index.js",
   "engines": {
     "node": ">=v8.0.0"
@@ -28,20 +28,20 @@
     "url": "http://github.com/kmpm/node-mcquery.git"
   },
   "devDependencies": {
-    "@hapi/lab": "^22.0.2",
-    "acorn": "^7.2.0",
-    "coveralls": "^3.0.2",
-    "eslint": "^5.14.1",
+    "@hapi/lab": "^22.0.5",
+    "acorn": "^7.4.1",
+    "coveralls": "^3.1.0",
+    "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^8.0.1",
-    "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-standard": "^4.0.0",
-    "xtend": "^4.0.0"
+    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-standard": "^4.1.0",
+    "xtend": "^4.0.2"
   },
   "dependencies": {
     "buffercursor": "0.0.12",
     "code": "^5.2.4",
-    "debug": "^4.1.1"
+    "debug": "^4.3.1"
   }
 }
