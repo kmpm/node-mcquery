@@ -1,4 +1,12 @@
 # Node-MCQuery
+
+__Archival notice!!!__ This project is currently archived because of lack of time
+and interest. I no longer use NodeMCU in any form. But someone else might be.
+If you want to post a notice here about your active alternative then send me a
+DM here on github.
+
+----
+
 A library for accessing a Minecraft server using the Query protocol
 
 If you need to run under node < 8.0.0 then you have to use a version < 1.0.0 of this library
