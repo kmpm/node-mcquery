@@ -1,7 +1,7 @@
 # Node-MCQuery
 
 __Archival notice!!!__ This project is currently archived because of lack of time
-and interest. I no longer use NodeMCU in any form. But someone else might be.
+and interest. I no longer play or use minecraft in any form. But someone else might be.
 If you want to post a notice here about your active alternative then send me a
 DM here on github.
 
