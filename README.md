@@ -5,6 +5,10 @@ and interest. I no longer play or use minecraft in any form. But someone else mi
 If you want to post a notice here about your active alternative then send me a
 DM here on github.
 
+__ alternatives __
+- https://github.com/VityaSchel/minecraft-query - TypeScript support, promises, JSDoc and syntax sugar methods. JSR alongside NPM.
+
+
 ----
 
 A library for accessing a Minecraft server using the Query protocol
